@@ -1,11 +1,8 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import Pilha.*;
-
 
 
 /**
@@ -14,9 +11,9 @@ import Pilha.*;
 public class ShutingYard {
 
 
-    static double PI = 3.1415926535898;
+    private static double PI = 3.1415926535898;
 
-    public static boolean isNumber(String S){
+    private static boolean isNumber(String S){
         try{
             Double.parseDouble(S);
             return true;
@@ -25,49 +22,119 @@ public class ShutingYard {
         }
     }
 
-    public static boolean isOperator(String S){
+    private static boolean isOperator(String S){
         return "+".equals(S) ||
                 "-".equals(S) ||
                 "*".equals(S) ||
                 "/".equals(S) ||
                 "^".equals(S) ||
                 "(".equals(S) ||
-                ")".equals(S);
+                ")".equals(S) ||
+                "U".equals(S);
     }
 
-    public static int operatorPrecedence(String S){
-        if("(".equals(S)){
-            return 10;
-        }else if("+".equals(S) || "-".equals(S))
+    private static int operatorPrecedence(String S){
+        if("+".equals(S) || "-".equals(S))
             return 1;
         else if("*".equals(S) || "/".equals(S))
             return 2;
-        else if(S.length() > 1){
-            return 4;
-        }else
+        else
             return 3;
     }
 
-    public static boolean isFunction(String s){
+    private static boolean isFunction(String s){
         return s.length() > 1;
     }
 
-    public static double makeResult(ArrayList<String> s,HashMap<Character,Double> x){
+    private static double makeResult(ArrayList<String> s,HashMap<Character,Double> x){
 
         Pilha<Double> operands = new Pilha<Double>();
         Pilha<String> operators = new Pilha<String>();
 
         for (String s1 : s) {
-            if(s1.length() == 1 && !isNumber(s1) && !isOperator(s1)){
-                operands.push(Double.parseDouble(x.get(s1.charAt(0)).toString()));
-            }else if(isNumber(s1)){
-                operands.push(Double.parseDouble(s1));
-            }else if(operators.getK() == 0 ){
-
-            }
+           if(isNumber(s1)){
+               operands.push(Double.parseDouble(s1));
+           }else if (s1.length() == 1)
+               if (!isOperator(s1)) {
+                   operands.push(x.get(s1.charAt(0)));
+               }else if(s1.charAt(0) == '(') {
+                   operators.push(s1);
+               }else if(s1.charAt(0) == ')'){
+                   while(!(operators.top().charAt(0) == '(')){
+                        operands = applyOperator(operands,operators.pop());
+                   }
+                   operands.pop();
+                   if(isFunction(operators.top())){
+                       operands.push(applyFunction(operands.pop(),operators.pop()));
+                   }
+               }else if(!operators.isEmpty()){
+                   if(operatorPrecedence(s1) > operatorPrecedence(operators.top())|| isFunction(s1)){
+                       operators.push(s1);
+                   }else{
+                       while(operatorPrecedence(s1) <= operatorPrecedence(operators.top()) && !operators.isEmpty()){
+                           operands= applyOperator(operands,operators.pop());
+                       }
+                       operators.push(s1);
+                   }
+               }else{
+                   operators.push(s1);
+               }
 
         }
-        return 0.0;
+        while (!operators.isEmpty()){
+            operands = applyOperator(operands,operators.pop());
+        }
+        return operands.top();
+    }
+
+    private static Double applyFunction(Double pop, String s) {
+
+        if (s.equals("sin")) {
+            return Math.sin(pop);
+        } else if (s.equals("cos")) {
+            return Math.cos(pop);
+        } else if (s.equals("sqrt")) {
+            return Math.sqrt(pop);
+        } else if (s.equals("exp")) {
+            return Math.exp(pop);
+        } else if (s.equals("log")) {
+            return Math.log10(pop);
+        } else if (s.equals("tan")) {
+            return Math.tan(pop);
+        } else if (s.equals("ln")) {
+            return Math.log(pop);
+        }
+        return null;
+    }
+
+    private static String operatorAssociativy(String S){
+        if("U".equals(S)){
+            return "unary";
+        }
+        return "binary";
+    }
+
+    private static Pilha<Double> applyOperator(Pilha<Double> operands, String pop) {
+        if(operatorAssociativy(pop).equals("binary")){
+            operands.push(applyBinaryOperator(operands.pop(),operands.pop(),pop));
+        }else
+            operands.push(operands.pop() * -1);
+        return operands;
+    }
+
+    private static Double applyBinaryOperator(Double aDouble, Double aDouble1, String pop) {
+        double result = 0;
+        if (pop.equals("+")) {
+            result = aDouble1 + aDouble;
+        }else if(pop.equals("-"))
+            result = aDouble1 - aDouble;
+        else if(pop.equals("*"))
+            result = aDouble1 * aDouble;
+        else if(pop.equals("/"))
+            result = aDouble1 / aDouble;
+        else if(pop.equals("^"))
+            result = Math.pow(aDouble1,aDouble);
+        return result;
     }
 
     private static ArrayList<String> splitExp(String exp) {
@@ -84,8 +151,9 @@ public class ShutingYard {
 
             if(( ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')) {
                 chString = chString.append(String.valueOf(ch));
-            }
-            else {
+            }else if(ch >= '0' && ch <= '9'){
+                chString = chString.append(String.valueOf(ch));
+            } else {
                 if (chString.length() > 0) {
                     arrL.add(chString.toString());
                     chString = new StringBuilder();
@@ -93,8 +161,18 @@ public class ShutingYard {
                 arrL.add(String.valueOf(ch));
             }
         }
-        arrL.add(chString.toString());
-        return arrL;
+        if(!"".equals(chString.toString()));
+            arrL.add(chString.toString());
+        ArrayList<String> arrR = new ArrayList<String>();
+        String Prev = "";
+        for (String s : arrL) {
+            if(isOperator(Prev) && "-".equals(s)){
+                s = "U";
+            }
+            arrR.add(s);
+            Prev = s;
+        }
+        return arrR;
     }
 
     private static HashMap<Character, Double> getOperands(String exp){
@@ -112,7 +190,6 @@ public class ShutingYard {
                 "\\^");  // Exponenciaçao
 
         for(String s:split){
-            System.out.println(s+ " " + isOperator(s));
             if(s.length() == 1 && !isNumber(s) && !isOperator(s) && !operands.containsKey(s)){
                 System.out.println("Entre com o valor da variavel " + s);
                 operands.put(s.charAt(0),scanner.nextDouble());
