@@ -31,7 +31,9 @@ public class ShutingYard {
     }
 
     private static int operatorPrecedence(String S){
-        if("+".equals(S) || "-".equals(S))
+        if("(".equals(S))
+            return 0;
+        else if("+".equals(S) || "-".equals(S))
             return 1;
         else if("*".equals(S) || "/".equals(S))
             return 2;
@@ -48,9 +50,14 @@ public class ShutingYard {
         Pilha<Double> operands = new Pilha<Double>();
         Pilha<String> operators = new Pilha<String>();
 
+        //System.out.println("My Tokens Are: " + s);
+
+
         for (String s1 : s) {
-           if(isNumber(s1)){
+           if(isNumber(s1)) {
                operands.push(Double.parseDouble(s1));
+           }else if("PI".equals(s1)){
+               operands.push(PI);
            }else if (s1.length() == 1) {
                if (!isOperator(s1)) {
                    operands.push(x.get(s1.charAt(0)));
@@ -103,7 +110,8 @@ public class ShutingYard {
             return Math.tan(pop);
         } else if (s.equals("ln")) {
             return Math.log(pop);
-        }
+        }else if(s.equals("abs"))
+            return Math.abs(pop);
         return null;
     }
 
@@ -175,18 +183,10 @@ public class ShutingYard {
         return arrR;
     }
 
-    private static HashMap<Character, Double> getOperands(String exp){
+    private static HashMap<Character, Double> getOperands(ArrayList<String> split){
 
         Scanner scanner = new Scanner(System.in);
         HashMap<Character,Double> operands = new HashMap<Character, Double>();
-        String[] split = exp.split("\\s+ |" + //Espaços em Branco
-                "\\(|" + // Abertura de Parenteses
-                "\\)|" + // Fechamento de Parenteses
-                "\\+|" + // Soma
-                "\\-|" + // Subtração
-                "\\*|" + // Multiplicação
-                "/|" +   // Divisao
-                "\\^");  // Exponenciaçao
 
         for(String s:split){
             if(s.length() == 1 && !isNumber(s) && !isOperator(s) && !operands.containsKey(s.charAt(0)) && !s.equals(" ")){
@@ -204,7 +204,7 @@ public class ShutingYard {
         String input = scanner.nextLine();
 
 
-        System.out.println(makeResult(splitExp(input),getOperands(input)));
+        System.out.println(makeResult(splitExp(input),getOperands(splitExp(input))));
 
     }
 
