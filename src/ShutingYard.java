@@ -179,8 +179,7 @@ public class ShutingYard {
 
         Scanner scanner = new Scanner(System.in);
         HashMap<Character,Double> operands = new HashMap<Character, Double>();
-
-        String[] split = exp.split("\\s |" + //Espaços em Branco
+        String[] split = exp.split("\\s+ |" + //Espaços em Branco
                 "\\(|" + // Abertura de Parenteses
                 "\\)|" + // Fechamento de Parenteses
                 "\\+|" + // Soma
