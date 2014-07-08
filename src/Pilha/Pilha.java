@@ -39,10 +39,12 @@ public class Pilha<T extends Comparable<T>> extends List<T> {
      *
      * @return Elemento Mais ao topo
      */
-    public T top(){
-        T aux = super.removeLeft();
-        super.insertLeft(aux);
-        return aux;
+    public T top() {
+        if (super.First != null){
+            T aux = super.First.Dado;
+            return aux;
+        }
+        return null;
     }
     public int getK(){
         return k;

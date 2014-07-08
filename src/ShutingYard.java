@@ -5,9 +5,6 @@ import java.util.Scanner;
 import Pilha.*;
 
 
-/**
- * Created by frank on 7/2/2014.
- */
 public class ShutingYard {
 
 
@@ -54,31 +51,34 @@ public class ShutingYard {
         for (String s1 : s) {
            if(isNumber(s1)){
                operands.push(Double.parseDouble(s1));
-           }else if (s1.length() == 1)
+           }else if (s1.length() == 1) {
                if (!isOperator(s1)) {
                    operands.push(x.get(s1.charAt(0)));
-               }else if(s1.charAt(0) == '(') {
+               } else if (s1.charAt(0) == '(') {
                    operators.push(s1);
-               }else if(s1.charAt(0) == ')'){
-                   while(!(operators.top().charAt(0) == '(')){
-                        operands = applyOperator(operands,operators.pop());
+               } else if (s1.charAt(0) == ')') {
+                   while (!(operators.top().charAt(0) == '(')) {
+                       operands = applyOperator(operands, operators.pop());
                    }
-                   operands.pop();
-                   if(isFunction(operators.top())){
-                       operands.push(applyFunction(operands.pop(),operators.pop()));
+                   operators.pop();
+                   if (isFunction(operators.top())) {
+                       operands.push(applyFunction(operands.pop(), operators.pop()));
                    }
-               }else if(!operators.isEmpty()){
-                   if(operatorPrecedence(s1) > operatorPrecedence(operators.top())|| isFunction(s1)){
+               } else if (!operators.isEmpty()) {
+                   if (operatorPrecedence(s1) > operatorPrecedence(operators.top()) || isFunction(s1)) {
                        operators.push(s1);
-                   }else{
-                       while(operatorPrecedence(s1) <= operatorPrecedence(operators.top()) && !operators.isEmpty()){
-                           operands= applyOperator(operands,operators.pop());
+                   } else {
+                       while (operatorPrecedence(s1) <= operatorPrecedence(operators.top()) && !operators.isEmpty()) {
+                           operands = applyOperator(operands, operators.pop());
                        }
                        operators.push(s1);
                    }
-               }else{
+               } else {
                    operators.push(s1);
                }
+           }else{
+               operators.push(s1);
+           }
 
         }
         while (!operators.isEmpty()){
@@ -161,7 +161,7 @@ public class ShutingYard {
                 arrL.add(String.valueOf(ch));
             }
         }
-        if(!"".equals(chString.toString()));
+        if(!"".equals(chString.toString()))
             arrL.add(chString.toString());
         ArrayList<String> arrR = new ArrayList<String>();
         String Prev = "";
@@ -189,7 +189,7 @@ public class ShutingYard {
                 "\\^");  // Exponenciaçao
 
         for(String s:split){
-            if(s.length() == 1 && !isNumber(s) && !isOperator(s) && !operands.containsKey(s)){
+            if(s.length() == 1 && !isNumber(s) && !isOperator(s) && !operands.containsKey(s.charAt(0)) && !s.equals(" ")){
                 System.out.println("Entre com o valor da variavel " + s);
                 operands.put(s.charAt(0),scanner.nextDouble());
             }
@@ -207,4 +207,5 @@ public class ShutingYard {
         System.out.println(makeResult(splitExp(input),getOperands(input)));
 
     }
+
 }
