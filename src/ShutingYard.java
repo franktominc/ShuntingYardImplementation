@@ -96,7 +96,7 @@ public class ShutingYard {
 
     private static Double applyFunction(Double pop, String s) {
 
-        if (s.equals("sin")) {
+        if (s.equals("sen")) {
             return Math.sin(pop);
         } else if (s.equals("cos")) {
             return Math.cos(pop);
